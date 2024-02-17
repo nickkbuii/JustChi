@@ -50,5 +50,5 @@ def test_disconnect():
     print('Client disconnected')
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, host='0.0.0.0', ssl_context='adhoc')
-    # socketio.run(app, debug=True, host='0.0.0.0', ssl_context=('server.crt', 'server.key'))
+    # socketio.run(app, debug=True, host='0.0.0.0', ssl_context='adhoc')
+    socketio.run(app, debug=True)
