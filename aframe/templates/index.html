@@ -4,6 +4,8 @@
     <title>Pose Estimation VR</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>    
+    <script src="./static/js/components.js"></script>
     <script>
         const POSE_CONNECTIONS = [
             [15, 21], [16, 20], [18, 20], [3, 7], [14, 16], [23, 25], [28, 30], [11, 23], [27, 31], [6, 8],
@@ -11,6 +13,14 @@
             [1, 2], [0, 4], [11, 13], [30, 32], [28, 32], [15, 19], [16, 18], [25, 27], [26, 28], [12, 14],
             [17, 19], [2, 3], [11, 12], [27, 29], [13, 15]
         ];
+
+        function drawSphere(scene, x, y, z, color, radius){
+            const sphere = document.createElement('a-sphere');
+            sphere.setAttribute('color', color);
+            sphere.setAttribute('radius', radius);
+            sphere.setAttribute('position', `${x} ${y} ${z}`);
+            scene.appendChild(sphere);
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
@@ -21,25 +31,22 @@
 
             // Listen for pose data from the server
             socket.on('update_model', function(data) {
-                const scene = document.querySelector('a-scene');
+                const scene = document.querySelector('a-camera');
                 
                 // Clear existing entities (spheres and lines) to redraw them
                 const existingEntities = scene.querySelectorAll('a-sphere, a-entity[line]');
                 existingEntities.forEach(entity => entity.remove());
-
+                const dx = 1;
+                const dy = 1;
+                const dz = -5;
+                
+                head_size = 0.12;
+                drawSphere(scene, data.pose[0].x+dx, data.pose[0].y+dy, dz, '#4CC3D9', head_size);
                 // Create and append a new sphere for each landmark with visibility > 0.5
-                data.pose.forEach(landmark => {
+                data.pose.forEach((landmark, index) => {
+                    if (index < 10) return;
                     if (landmark.visibility > 0.5) {
-                        const sphere = document.createElement('a-sphere');
-                        sphere.setAttribute('color', '#4CC3D9');
-                        sphere.setAttribute('radius', '0.02');
-                        
-                        const x = landmark.x;
-                        const y = landmark.y;
-                        const z = 0;
-
-                        sphere.setAttribute('position', `${x} ${y} ${z}`);
-                        scene.appendChild(sphere);
+                        drawSphere(scene, landmark.x+dx, landmark.y+dy, dz, '#4CC3D9', 0.03);
                     }
                 });
 
@@ -50,9 +57,10 @@
 
                     if (landmark1.visibility > 0.5 && landmark2.visibility > 0.5) {
                         const line = document.createElement('a-entity');
-                        const start = `${landmark1.x} ${landmark1.y} 0`;
-                        const end = `${landmark2.x} ${landmark2.y} 0`;
-                        line.setAttribute('line', `start: ${start}; end: ${end}; color: #C3C3C3`);
+                        const start = `${landmark1.x+dx} ${landmark1.y+dy} ${dz}`;
+                        const end = `${landmark2.x+dx} ${landmark2.y+dy} ${dz}`;
+                        line.setAttribute('overlay', '')
+                        line.setAttribute('line', `start: ${start}; end: ${end}; color: #000000`);
                         scene.appendChild(line);
                     }
                 });
@@ -62,7 +70,44 @@
 </head>
 <body>
     <a-scene>
-        <a-camera position="0 0 1"></a-camera>
+        <a-sky color="#ECECEC"></a-sky>
+        <a-entity id="leftHand" oculus-touch-controls="hand: left" laser-controls raycaster="showLine: true; far: 10" line="color: red; opacity: 0.75"></a-entity>
+        <a-entity id="rightHand" oculus-touch-controls="hand: right" laser-controls raycaster="showLine: true; far: 10" line="color: blue; opacity: 0.75"></a-entity>
+        <script>
+            // Function to vibrate the controllers
+            function vibrateController(handEntityId, duration = 100, intensity = 1.0) {
+                const handEntity = document.getElementById(handEntityId);
+                if (handEntity && handEntity.components['oculus-touch-controls']) {
+                    const controller = handEntity.components['oculus-touch-controls'].controller;
+                    if (controller && controller.hapticActuators && controller.hapticActuators.length > 0) {
+                        controller.hapticActuators[0].pulse(intensity, duration);
+                    }
+                }
+            }
+        
+            // Set an interval to vibrate both controllers every 5 seconds
+            setInterval(() => {
+                vibrateController('leftHand');
+                vibrateController('rightHand');
+            }, 5000);
+        </script>
+        <a-assets>
+            <video id="calibrationVideo" src="./static/videos/test_calibration_daniel.mov" preload="auto" playsinline webkit-playsinline></video>
+        </a-assets>
+        <a-video src="#calibrationVideo" position="0 5 -30" width="12" height="8" class="clickable" play-on-click>
+        </a-video>
+        <a-entity position="0 5 -30" text="align:center;
+                width:30;
+                wrapCount:100;
+                color: white;
+                value: Click or tap to start video" hide-on-play="#calibrationVideo">
+        </a-entity>
+        <a-entity position="0 0 1">
+            <a-camera>
+                <a-plane color="#CCC" height="20" width="20"></a-plane>
+            </a-camera>
+        </a-entity>
+        <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
     </a-scene>
 </body>
 </html>

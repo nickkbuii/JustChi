@@ -3,11 +3,10 @@ import mediapipe as mp
 import time
 
 mp_pose = mp.solutions.pose
-print(list(mp_pose.POSE_CONNECTIONS))
 pose = mp_pose.Pose()
 mp_drawing = mp.solutions.drawing_utils
 
-cap = cv2.VideoCapture(0)  # Use the webcam
+cap = cv2.VideoCapture('./static/videos/test_calibration_daniel.mov')
 
 while cap.isOpened():
     success, image = cap.read()

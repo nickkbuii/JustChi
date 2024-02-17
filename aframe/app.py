@@ -13,7 +13,6 @@ socketio = SocketIO(app)
 def emit_pose_data():
     mp_pose = mp.solutions.pose
     pose = mp_pose.Pose()
-    mp_drawing = mp.solutions.drawing_utils
 
     cap = cv2.VideoCapture(0)  # Use the webcam
     with app.app_context():
@@ -50,5 +49,5 @@ def test_disconnect():
     print('Client disconnected')
 
 if __name__ == '__main__':
-    # socketio.run(app, debug=True, host='0.0.0.0', ssl_context='adhoc')
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, host='0.0.0.0', ssl_context='adhoc')
+    # socketio.run(app, debug=True)
