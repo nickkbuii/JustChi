@@ -19,7 +19,7 @@ Installation steps:
 $ git clone https://github.com/nickkbuii/JustChi.git
 ```
 2. Connect host and Meta Quest 2 to a local network
-3. Run `app.py`
+4. Run the `app.py`file
 ```
 $ python app.py
 ```
