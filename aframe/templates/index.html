@@ -18,6 +18,14 @@
             // Listen for pose data from the server
             socket.on('update_model', function(data) {
                 const scene = document.getElementById('pose');
+                var score = document.getElementById('score');
+                var score_results = document.getElementById('score_results');
+                if (data.score != "-1") {
+                    score.setAttribute('text', 'value', `Score:\n${data.score}\n${data.judgement}`)
+                }
+                if (data.final == "true") {
+                    score_results.setAttribute('text', 'value', `Score: ${data.score}`);
+                }
                 
                 // Clear existing entities (spheres and lines) to redraw them
                 const existingEntities = scene.querySelectorAll('a-sphere, a-entity, a-cylinder');
@@ -59,29 +67,107 @@
 <body>
     <a-scene>
         <a-assets>
-            <video id="calibrationVideo" src="./static/videos/test_calibration_daniel.mov" preload="auto" playsinline webkit-playsinline></video>
+            <video id="videoSource" src="./static/videos/demo.mp4" preload="auto" playsinline webkit-playsinline></video>
             <img id="startButton" src="../static/images/start_button.png">
             <img id="startButtonHover" src="../static/images/start_button_hover.png">
             <img id="background" src="../static/images/beach.jpeg">
+            <img id="playButton" src="../static/images/playButton.png">
+            <img id="logo" src="../static/images/logo.png">
+            <img id="background" src="../static/images/beach.jpeg">
+            <img id="chen" src="../static/images/chen.png">
+            <img id="sun" src="../static/images/sun.png">
+            <img id="yang" src="../static/images/yang.png">
+            <img id="wu" src="../static/images/wu.png">
+            <img id="finish" src="../static/images/finish.png">
+            <img id="results" src="../static/images/results.png">
+            <img id="back" src="../static/images/back.png">
+            <audio id="intro" src="../static/audio/intro.mp3" preload="auto" autoplay="true"></audio>
+            <a-asset-item id="forest" src="../static/objects/forest.gltf"></a-asset-item>
         </a-assets>
 
-        <a-sky color="#ECECEC"></a-sky>
+        
         <!-- <a-sky src="#background" rotation="0 -130 0"></a-sky> -->
+        <a-entity id='forest_entity' gltf-model="#forest" scale="10 10 10" position="-1.664 -0.2 -39.737" rotation="0 90 0" shadow="receive: true" fix-shadow></a-entity>
+        <a-entity id='environment' environment="ground: none; fog: 0.75; skyType: gradient; skyColor: #24b59f; horizonColor: #eff9b7; lighting: none"></a-entity>
+        <a-entity light="type: directional; castShadow: true; intensity: 1;" position="69.309 62.635 -84.598"></a-entity>
+
+        <!-- VR Controllers -->
         <a-entity id="leftHand" laser-controls="hand: left" raycaster="showLine: true; far: 100; lineColor: red; lineOpacity: 0.5; objects: .clickable, [hover-color-change]" haptics="events: triggerdown; dur: 300; force: 1.0"></a-entity>
         <a-entity id="rightHand" laser-controls="hand: right" raycaster="showLine: true; far: 100; lineColor: blue; lineOpacity: 0.5; objects: .clickable, [hover-color-change]" haptics="events: triggerdown; dur: 300; force: 1.0"></a-entity>
+        
+        <!-- Main Menu -->
+        <a-entity id="playButton_entity" position="0 1 -6" geometry="primitive: plane; height: 1; width: 3.12403" class="clickable"
+                  animation__fadein="property: material.opacity; from: 0; to: 1; dur: 500; startEvents: fadeIn"
+                  animation__fadeout="property: material.opacity; from: 1; to: 0; dur: 500; startEvents: fadeOut"
+                  material="src: #playButton; transparent: true; opacity: 0; shader: flat" open-menu-on-click></a-entity>
+        <a-entity id="logo_entity" position="0 4 -6" geometry="primitive: plane; height: 5; width: 5"
+                  animation__fadein="property: material.opacity; from: 0; to: 1; dur: 500; startEvents: fadeIn"
+                  animation__fadeout="property: material.opacity; from: 1; to: 0; dur: 500; startEvents: fadeOut"
+                  material="src: #logo; transparent: true; opacity: 0; shader: flat"></a-entity>
+        <script>
+            document.querySelector('a-assets').addEventListener('loaded', () => {
+                setTimeout(() => {
+                    document.querySelector('#playButton_entity').emit('fadeIn');
+                    document.querySelector('#logo_entity').emit('fadeIn');
+                    var chen_entity = document.querySelector('#chen_entity');
+                    var sun_entity = document.querySelector('#sun_entity');
+                    var yang_entity = document.querySelector('#yang_entity');
+                    var wu_entity = document.querySelector('#wu_entity');
+                }, 500);
+            });
+        </script>
 
-        <a-video id="videoPlayer" src="#calibrationVideo" position="0 2.2 -5" width="3" height="2" visible="false"></a-video>
-        <!-- <a-box position="0 1 -3" depth="0.1" height="0.5" width="2" id="playButton" play-video-on-click class="clickable"
-               hover-color-change="hoverColor: #2c974b; originalColor: #2ea44f" material="shader: flat">
-            <a-entity text="align:center; width:17; wrapCount:100; color: black; value: Click to start!" position="0 0 0.06"></a-entity>
-        </a-box> -->
+        <!-- Stage Select -->
+        <a-entity id="chen_entity" position="-1.4 1.7 -5.1" geometry="primitive: plane; height: 1.7; width: 2.7"
+                  animation__fadein="property: material.opacity; from: 0; to: 1; dur: 500; startEvents: fadeIn"
+                  animation__fadeout="property: material.opacity; from: 1; to: 0; dur: 500; startEvents: fadeOut"
+                  animation__expand="property: scale; startEvents: selected; dur: 500; easing: easeOutElastic; from: 1 1 1; to: 1.2 1.2 1.2"
+                  animation__contract="property: scale; startEvents: deselected; dur: 500; easing: easeOutElastic; from: 1.2 1.2 1.2; to: 1 1 1"
+                  material="src: #chen; transparent: true; opacity: 0; shader: flat" chen-environment-on-click></a-entity>
+        <a-entity id="sun_entity" position=" 1.4 1.7 -5.1" geometry="primitive: plane; height: 1.7; width: 2.7"
+                  animation__fadein="property: material.opacity; from: 0; to: 1; dur: 500; startEvents: fadeIn"
+                  animation__fadeout="property: material.opacity; from: 1; to: 0; dur: 500; startEvents: fadeOut"
+                  animation__expand="property: scale; startEvents: selected; dur: 500; easing: easeOutElastic; from: 1 1 1; to: 1.2 1.2 1.2"
+                  animation__contract="property: scale; startEvents: deselected; dur: 500; easing: easeOutElastic; from: 1.2 1.2 1.2; to: 1 1 1"
+                  material="src: #sun; transparent: true; opacity: 0; shader: flat" sun-environment-on-click></a-entity>
+        <a-entity id="yang_entity" position="-1.4 3.5 -5.1" geometry="primitive: plane; height: 1.7; width: 2.7"
+                  animation__fadein="property: material.opacity; from: 0; to: 1; dur: 500; startEvents: fadeIn"
+                  animation__fadeout="property: material.opacity; from: 1; to: 0; dur: 500; startEvents: fadeOut"
+                  animation__expand="property: scale; startEvents: selected; dur: 500; easing: easeOutElastic; from: 1 1 1; to: 1.2 1.2 1.2"
+                  animation__contract="property: scale; startEvents: deselected; dur: 500; easing: easeOutElastic; from: 1.2 1.2 1.2; to: 1 1 1"
+                  material="src: #yang; transparent: true; opacity: 0; shader: flat" yang-environment-on-click></a-entity>
+        <a-entity id="wu_entity" position="1.4 3.5 -5.1" geometry="primitive: plane; height: 1.7; width: 2.7"
+                  animation__fadein="property: material.opacity; from: 0; to: 1; dur: 500; startEvents: fadeIn"
+                  animation__fadeout="property: material.opacity; from: 1; to: 0; dur: 500; startEvents: fadeOut"
+                  animation__expand="property: scale; startEvents: selected; dur: 500; easing: easeOutElastic; from: 1 1 1; to: 1.2 1.2 1.2"
+                  animation__contract="property: scale; startEvents: deselected; dur: 500; easing: easeOutElastic; from: 1.2 1.2 1.2; to: 1 1 1"
+                  material="src: #wu; transparent: true; opacity: 0; shader: flat" wu-environment-on-click></a-entity>
+        
+        <!-- Gameplay -->
+        <a-video id="videoPlayer" src="#videoSource" position="0 2.2 -5" width="4" height="2.25" visible="false"></a-video>
         <a-text id="countdownText" position="0 1.7 -3" text="align:center; width:35; wrapCount:100; color: black; value:"></a-text>
-        <a-entity position="0 1.7 -3" geometry="primitive: plane; height: 1; width: 3.12403" class="clickable" start-countdown play-video-on-click
-              material="src: #startButton; transparent: true; opacity: 1; shader: flat" hover-image-change="hoverImage: #startButtonHover; originalImage: #startButton"></a-entity>
-        <!-- <a-sphere position="0 1.25 -2" radius="1" color="#4CC3D9" class="clickable" change-color-on-click></a-sphere> -->
-        <a-entity position="1.5 3.1 -5" id="pose" visible="false">
+        <a-entity id="startButton_entity" position="0 1.7 -3" visible="false" geometry="primitive: plane; height: 1; width: 3.12403" start-countdown play-video-on-click
+                  material="src: #startButton; transparent: true; opacity: 1; shader: flat" hover-image-change="hoverImage: #startButtonHover; originalImage: #startButton"></a-entity>
+        <a-entity id="pose" position="1.7 3.1 -5" visible="false">
         </a-entity>
-        <a-entity environment="preset: forest; dressingAmount: 250"></a-entity>
+        <a-entity id="score" position="-3.5 2.7 -5" rotation="0 30 0" visible="false"
+                  text="align:center; width:25; wrapCount:100; color: black; value: Score; font: dejavu"></a-entity>
+
+        <!-- End Screen -->
+        <a-entity id="finish_entity" position="0 2.5 -4" geometry="primitive: plane; height: 5; width: 7.96" 
+                  animation__fadein="property: material.opacity; from: 0; to: 1; dur: 500; startEvents: fadeIn"
+                  animation__fadeout="property: material.opacity; from: 1; to: 0; dur: 500; startEvents: fadeOut"
+                  material="src: #finish; transparent: true; opacity: 0; shader: flat"></a-entity>
+        <a-entity id="results_entity" position="0 2.5 -3" geometry="primitive: plane; height: 2; width: 3.552" 
+                  animation__fadein="property: material.opacity; from: 0; to: 1; dur: 500; startEvents: fadeIn"
+                  animation__fadeout="property: material.opacity; from: 1; to: 0; dur: 500; startEvents: fadeOut"
+                  material="src: #results; transparent: true; opacity: 0; shader: flat"></a-entity>
+        <a-entity id="back_entity" position="0 1 -3" geometry="primitive: plane; height: 0.7; width: 1.78" open-menu-from-results
+                  animation__fadein="property: material.opacity; from: 0; to: 1; dur: 500; startEvents: fadeIn"
+                  animation__fadeout="property: material.opacity; from: 1; to: 0; dur: 500; startEvents: fadeOut"
+                  material="src: #back; transparent: true; opacity: 0; shader: flat"></a-entity>
+        <a-entity id="score_results" position="0 2.03 -2.95" visible="false"
+                  text="align:center; width:12; wrapCount:100; color: black; value: Score: 1,302,498; font: dejavu"></a-entity>
     </a-scene>
 </body>
 </html>

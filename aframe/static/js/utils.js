@@ -43,28 +43,22 @@ AFRAME.registerComponent("thick-line", {
     }
 });
 
-AFRAME.registerComponent('change-color-on-click', {
-    init: function () {
-        this.el.addEventListener('click', (evt) => {
-        const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
-        this.el.setAttribute('material', 'color', randomColor);
-        });
-    }
-});
-
 AFRAME.registerComponent('play-video-on-click', {
     init: function () {
-        var videoEl = document.querySelector('#calibrationVideo');
+        var videoEl = document.querySelector('#videoSource');
         var video_player = document.querySelector('#videoPlayer');
         var player_pose = document.querySelector('#pose');
+        var score_text = document.querySelector('#score');
         var el = this.el;
         this.el.addEventListener('click', function () {
             if (videoEl.paused) {
+                el.removeAttribute('class');
                 el.setAttribute('visible', false);
                 player_pose.setAttribute('visible', true);
+                score_text.setAttribute('visible', true);
                 setTimeout(() => {
-                    video_player.setAttribute('visible', true);
                     videoEl.play();
+                    video_player.setAttribute('visible', true);
                     fetch('/video-started', {
                         method: 'POST',
                         headers: {
@@ -78,37 +72,17 @@ AFRAME.registerComponent('play-video-on-click', {
                         console.error('Error:', error);
                     });
                 }, 4000);
-            } 
-            // else {
-            //     videoEl.pause();
-            //     el.setAttribute('visible', true);
-            // }
+            }
         });
         videoEl.addEventListener('ended', function () {
-            video_player.setAttribute('visible', false);
-            player_pose.setAttribute('visible', false);
-            el.setAttribute('visible', true);
-        });
-    }
-});
-
-AFRAME.registerComponent('hover-color-change', {
-    schema: {
-        hoverColor: {type: 'color', default: '#FF0000'},
-        originalColor: {type: 'color', default: '#00FF00'}
-    },
-    init: function() {
-        var el = this.el;
-        var data = this.data;
-        var laser_count = 0;
-        el.setAttribute('material', 'color', data.originalColor);
-        el.addEventListener('raycaster-intersected', function () {
-            el.setAttribute('material', 'color', data.hoverColor);
-            laser_count += 1;
-        });
-        el.addEventListener('raycaster-intersected-cleared', function () {
-            laser_count -= 1;
-            if (laser_count == 0) el.setAttribute('material', 'color', data.originalColor);
+            setTimeout(() => {
+                video_player.setAttribute('visible', false);
+                player_pose.setAttribute('visible', false);
+                score_text.setAttribute('visible', false);
+                display_results();
+            }, 1000);
+            // el.setAttribute('class', 'clickable');
+            // el.setAttribute('visible', true);
         });
     }
 });
@@ -155,3 +129,190 @@ AFRAME.registerComponent('start-countdown', {
         });
     }
 });
+
+function start_game() {
+    setTimeout(() => {
+        var button = document.querySelector('#startButton_entity');
+        var pose = document.querySelector('#pose');
+        button.setAttribute('visible', true);
+        button.setAttribute('class', 'clickable');
+        pose.setAttribute('visible', true);
+    }, 500);
+}
+
+AFRAME.registerComponent('open-menu-on-click', {
+    init: function () {
+        this.el.addEventListener('click', () => {
+            var logo = document.querySelector('#logo_entity');
+            var playButton = document.querySelector('#playButton_entity');
+            logo.emit('fadeOut');
+            playButton.emit('fadeOut');
+            playButton.removeAttribute('class');
+            var soundEl = document.createElement('a-sound');
+            soundEl.setAttribute('src', '#intro');
+            soundEl.setAttribute('autoplay', 'true');
+            soundEl.setAttribute('position', '0 0 0');
+            var sceneEl = document.querySelector('a-scene');
+            sceneEl.appendChild(soundEl);
+            setTimeout(() => {
+                chen_entity.emit('fadeIn');
+                chen_entity.setAttribute('class', 'clickable');
+                sun_entity.emit('fadeIn');
+                sun_entity.setAttribute('class', 'clickable');
+                yang_entity.emit('fadeIn');
+                yang_entity.setAttribute('class', 'clickable');
+                wu_entity.emit('fadeIn');
+                wu_entity.setAttribute('class', 'clickable');
+            }, 500);
+        });
+    }
+});
+
+AFRAME.registerComponent('chen-environment-on-click', {
+    init: function () {
+        this.el.addEventListener('click', () => {
+            sun_entity.emit('fadeOut');
+            yang_entity.emit('fadeOut');
+            wu_entity.emit('fadeOut');
+            sun_entity.removeAttribute('class');
+            yang_entity.removeAttribute('class');
+            wu_entity.removeAttribute('class');
+            chen_entity.emit('selected');
+            setTimeout(() => {
+                chen_entity.emit('fadeOut');
+                chen_entity.emit('deselected');
+                chen_entity.removeAttribute('class');
+                var environment = document.querySelector('#environment');
+                environment.setAttribute('environment', 'skyColor', '#24b59f');
+                environment.setAttribute('horizonColor', 'skyColor', '#eff9b7');
+                start_game();
+            }, 500);
+        });
+    }
+});
+
+AFRAME.registerComponent('sun-environment-on-click', {
+    init: function () {
+        this.el.addEventListener('click', () => {
+            chen_entity.emit('fadeOut');
+            yang_entity.emit('fadeOut');
+            wu_entity.emit('fadeOut');
+            chen_entity.removeAttribute('class');
+            yang_entity.removeAttribute('class');
+            wu_entity.removeAttribute('class');
+            sun_entity.emit('selected');
+            setTimeout(() => {
+                sun_entity.emit('fadeOut');
+                sun_entity.emit('deselected')
+                sun_entity.removeAttribute('class');
+                var environment = document.querySelector('#environment');
+                environment.setAttribute('environment', 'skyColor', '#7E1529');
+                environment.setAttribute('horizonColor', 'skyColor', '#FFFF74');
+                start_game();
+            }, 500);
+        });
+    }
+});
+
+AFRAME.registerComponent('yang-environment-on-click', {
+    init: function () {
+        this.el.addEventListener('click', () => {
+            sun_entity.emit('fadeOut');
+            chen_entity.emit('fadeOut');
+            wu_entity.emit('fadeOut');
+            sun_entity.removeAttribute('class');
+            chen_entity.removeAttribute('class');
+            wu_entity.removeAttribute('class');
+            yang_entity.emit('selected');
+            setTimeout(() => {
+                yang_entity.emit('fadeOut');
+                yang_entity.emit('deselected');
+                yang_entity.removeAttribute('class');
+                var environment = document.querySelector('#environment');
+                environment.setAttribute('environment', 'skyColor', '#45788B');
+                environment.setAttribute('horizonColor', 'skyColor', '#FFFFFF');
+                start_game();
+            }, 500);
+        });
+    }
+});
+
+AFRAME.registerComponent('wu-environment-on-click', {
+    init: function () {
+        this.el.addEventListener('click', () => {
+            sun_entity.emit('fadeOut');
+            yang_entity.emit('fadeOut');
+            chen_entity.emit('fadeOut');
+            sun_entity.removeAttribute('class');
+            yang_entity.removeAttribute('class');
+            chen_entity.removeAttribute('class');
+            wu_entity.emit('selected');
+            setTimeout(() => {
+                wu_entity.emit('fadeOut');
+                wu_entity.emit('deselected');
+                wu_entity.removeAttribute('class');
+                var environment = document.querySelector('#environment');
+                environment.setAttribute('environment', 'skyColor', '#001F3C');
+                environment.setAttribute('horizonColor', 'skyColor', '#A95D53');
+                start_game();
+            }, 500);
+        });
+    }
+});
+
+function display_results() {
+    var finish_entity = document.querySelector('#finish_entity');
+    var results_entity = document.querySelector('#results_entity');
+    var back_entity = document.querySelector('#back_entity');
+    var score_results = document.querySelector('#score_results');
+    finish_entity.emit('fadeIn');
+    results_entity.emit('fadeIn');
+    back_entity.emit('fadeIn');
+    setTimeout(() => {
+        score_results.setAttribute('visible', true);
+    }, 500);
+    back_entity.setAttribute('class', 'clickable');
+}
+
+AFRAME.registerComponent('open-menu-from-results', {
+    init: function () {
+        this.el.addEventListener('click', () => {
+            var finish_entity = document.querySelector('#finish_entity');
+            var results_entity = document.querySelector('#results_entity');
+            var back_entity = document.querySelector('#back_entity');
+            var score_results = document.querySelector('#score_results');
+            finish_entity.emit('fadeOut');
+            results_entity.emit('fadeOut');
+            back_entity.emit('fadeOut');
+            score_results.setAttribute('visible', false);
+            back_entity.removeAttribute('class');
+            setTimeout(() => {
+                chen_entity.emit('fadeIn');
+                chen_entity.setAttribute('class', 'clickable');
+                sun_entity.emit('fadeIn');
+                sun_entity.setAttribute('class', 'clickable');
+                yang_entity.emit('fadeIn');
+                yang_entity.setAttribute('class', 'clickable');
+                wu_entity.emit('fadeIn');
+                wu_entity.setAttribute('class', 'clickable');
+            }, 500);
+        });
+    }
+});
+
+// https://stackoverflow.com/questions/62048075/lights-in-a-frame-have-striped-artifacts-depending-on-distance-from-them
+AFRAME.registerComponent('fix-shadow', { 
+    dependencies: ['material'],
+  
+    init: function () {
+      this.el.addEventListener('model-loaded', () => {
+        const mesh = this.el.getObject3D('mesh');
+        if (!mesh) return;
+        mesh.traverse(node => {
+          if (node.isMesh) {
+            node.material.shadowSide = THREE.BackSide;
+          }
+        });
+      });
+    }
+  });

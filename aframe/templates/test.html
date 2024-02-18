@@ -5,72 +5,17 @@
     <title>AFrame Test</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js"></script>
-    <script src="./static/js/utils.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
-            
-            socket.on('connect', function() {
-                console.log('WebSocket connected!');
-            });
-
-            // Listen for pose data from the server
-            socket.on('update_model', function(data) {
-                const scene = document.getElementById('pose');
-                
-                // Clear existing entities (spheres and lines) to redraw them
-                const existingEntities = scene.querySelectorAll('a-sphere, a-entity, a-cylinder');
-                existingEntities.forEach(entity => entity.remove());
-                const dx = 0;
-                const dy = 0;
-                const dz = 0;
-                const scale = 1;
-                
-                head_size = 0.1 * scale;
-                mid_head_x = (data.pose[9].x + data.pose[10].x) / 2
-                mid_head_y = (data.pose[9].y + data.pose[10].y) / 2
-                drawSphere(scene, scale*(mid_head_x+dx), scale*(mid_head_y+dy), dz, '#4CC3D9', head_size);
-                // Create and append a new sphere for each landmark with visibility > 0.5
-                data.pose.forEach((landmark, index) => {
-                    if (index < 10) return;
-                    if (landmark.visibility > 0.5) {
-                        drawSphere(scene, scale*(landmark.x+dx), scale*(landmark.y+dy), dz, '#4CC3D9', 0.03);
-                    }
-                });
-
-                // Draw lines for each connected pair in POSE_CONNECTIONS
-                POSE_CONNECTIONS.forEach(pair => {
-                    const landmark1 = data.pose[pair[0]];
-                    const landmark2 = data.pose[pair[1]];
-                    if (pair[0] < 10 || pair[1] < 10) return;
-                    if (landmark1.visibility > 0.5 && landmark2.visibility > 0.5) {
-                        const line = document.createElement('a-entity');
-                        const start = `${scale*(landmark1.x+dx)} ${scale*(landmark1.y+dy)} ${dz}`;
-                        const end = `${scale*(landmark2.x+dx)} ${scale*(landmark2.y+dy)} ${dz}`;
-                        line.setAttribute('thick-line', `start: ${start}; end: ${end}; thickness: 0.02; color: #000;`);
-                        scene.appendChild(line);
-                    }
-                });
-            });
-        });
-    </script>
+    <script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-haptics-component/dist/aframe-haptics-component.min.js"></script>
 </head>
 <body>
     <a-scene>
-        <a-assets>
-            <video id="calibrationVideo" src="./static/videos/test_calibration_daniel.mov" preload="auto" playsinline webkit-playsinline></video>
-            <img id="startButton" src="../static/images/start_button.png">
-            <img id="startButtonHover" src="../static/images/start_button_hover.png">
-            <img id="background" src="../static/images/beach.jpeg">
-        </a-assets>
-        <a-sky src="#background" rotation="0 -130 0"></a-sky>
-        <a-entity id="leftHand" laser-controls="hand: left" raycaster="showLine: true; far: 100; lineColor: red; lineOpacity: 0.5; objects: .clickable, [hover-color-change]" haptics="events: triggerdown; dur: 300; force: 1.0"></a-entity>
-        <a-entity id="rightHand" laser-controls="hand: right" raycaster="showLine: true; far: 100; lineColor: blue; lineOpacity: 0.5; objects: .clickable, [hover-color-change]" haptics="events: triggerdown; dur: 300; force: 1.0"></a-entity>
-        <a-entity position="0 1.7 -3" geometry="primitive: plane; height: 1; width: 3.12403" class="clickable"
-              material="src: #startButton; transparent: true; opacity: 1; shader: flat"></a-entity>
-        <a-entity position="1.5 3.1 -5" id="pose" visible="true">
+        <a-entity id="startButton_entity" position="0 1.7 -3" visible="true" geometry="primitive: plane; height: 1; width: 3.12403" start-countdown play-video-on-click
+                  material="src: #startButton; transparent: false; color: black; opacity: 1; shader: flat" hover-image-change="hoverImage: #startButtonHover; originalImage: #startButton"></a-entity>
+        <a-entity id="pose" position="1.5 3.1 -5" visible="false">
         </a-entity>
-        
+        <a-entity id="score" position="-3.5 2.7 -5" rotation="0 30 0" visible="true"
+                  text="align:center; width:25; wrapCount:100; color: black; value: Score; font: dejavu"></a-entity>
     </a-scene>
 </body>
 </html>
