@@ -13,6 +13,13 @@ Requirements:
 * opencv-python (4.5.5.61)
 * numpy (1.26.4)
 
+Steps:
+1. Clone the repository
+```
+$ git clone https://github.com/nickkbuii/JustChi.git
+```
+2. 
+
 ## Our Team
 * Rally Lin (rally.lin@duke.edu)
 * Daniel Yang (dy5251@princeton.edu)
