@@ -5,6 +5,8 @@
 
 A pose-tracking VR application built with Meta Quest 2 for interactive Tai Chi learning.
 
+![image](https://github.com/nickkbuii/JustChi/blob/main/demo.png)
+
 ## Installation
 Requirements: 
 * Python (3.11.4)
