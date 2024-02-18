@@ -13,7 +13,7 @@ Requirements:
 * opencv-python (4.5.5.61)
 * numpy (1.26.4)
 
-Installation Steps:
+Installation steps:
 1. Clone the repository
 ```
 $ git clone https://github.com/nickkbuii/JustChi.git
