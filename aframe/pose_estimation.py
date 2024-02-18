@@ -6,7 +6,6 @@ import func as f
 import moves as m
 
 mp_pose = mp.solutions.pose
-print(list(mp_pose.POSE_CONNECTIONS))
 pose = mp_pose.Pose()
 mp_drawing = mp.solutions.drawing_utils
 
