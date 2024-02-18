@@ -18,7 +18,9 @@ Steps:
 ```
 $ git clone https://github.com/nickkbuii/JustChi.git
 ```
-2. 
+2. Connect host and Meta Quest 2 to a local network
+3. Run `app.py`
+4. Open server address on browser in Meta Quest 2 
 
 ## Our Team
 * Rally Lin (rally.lin@duke.edu)
