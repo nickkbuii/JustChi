@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO
 import time
 import threading
@@ -32,12 +32,22 @@ def emit_pose_data():
                     pos_loc.append({"x": landmark.x, "y": -landmark.y, "z": landmark.z, "visibility": landmark.visibility})
                 socketio.emit('update_model', {'pose': pos_loc})
 
-            time.sleep(1/30)
+            time.sleep(1/20)
 
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/test')
+def test():
+    return render_template('test.html')
+
+@app.route('/video-started', methods=['POST'])
+def video_started():
+    data = request.json
+    print(data)
+    return jsonify({"message": "Received"}), 200
 
 @socketio.on('connect')
 def test_connect():
